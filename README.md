@@ -25,10 +25,7 @@ sudo mkdir -p /root/o11/o11v4 && cd /root/o11/o11v4
 
 Run the following command to install the necessary software if you want to use nodejs:
 ```sh
-curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-sudo apt install -y nodejs
-npm install -g pm2
-npm install express
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && sudo apt install -y nodejs && npm install -g pm2 && npm install express
 ```
 ## Setting Up & Starting the License Server Proxy
 
