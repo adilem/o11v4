@@ -73,7 +73,7 @@ const options = {
 };
 
 // Start HTTP and HTTPS servers
-[4444, 4445].forEach(port => {
+[4444, 5454].forEach(port => {
     http.createServer(app).listen(port, () => {
     console.log(`HTTP server running on port ${port}`);
     });
