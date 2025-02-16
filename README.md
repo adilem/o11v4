@@ -19,7 +19,7 @@ Tested on **Ubuntu 20-23**
 ### 1. Create the Required Directory
 Run the following command to create the necessary directory:
 ```sh
-sudo mkdir -p /root/o11/o11v4 && cd /root/o11/o11v4
+sudo mkdir -p /root/o11/ && cd /root/o11/
 ```
 ### 2. Install Nodejs/NPM
 
