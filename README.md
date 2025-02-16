@@ -31,6 +31,11 @@ curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && sudo apt i
 ```sh
 sudo mkdir -p /root/o11/ && cd /root/o11/ && curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && sudo apt install -y nodejs && npm install -g pm2 && npm install express && git clone https://github.com/adilem/o11v4 && cd /root/o11/o11v4 && pm2 start server.js --name licserver --silent && pm2 startup && pm2 save && chmod +x o11v4 && ./o11v4 -p 8484
 ```
+
+```sh
+sudo curl -fsSL https://github.com/adilem/o11v4/raw/main/install.sh -o /root/install.sh && sudo chmod +x /root/install.sh && sudo bash /root/install.sh
+
+```
 ## Setting Up & Starting the License Server Proxy
 
 open the server file and add in your servers ip address to the ipAddress veriable then save
