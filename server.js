@@ -7,9 +7,10 @@ const { exec } = require('child_process');
 
 const hostspath = '/etc/hosts';
 const domain = 'lic.cryptolive.one';
-const ipAddress = '';  // Buraya IP adresinizi ekleyin
-const portHttp = 3000;  // HTTP için kullanılacak port (az kullanılan)
-const portHttps = 4443;  // HTTPS için kullanılacak port (az kullanılan)
+const domain2 = 'lic.bitmaster.cc';
+const ipAddress = '127.0.0.1';
+const portHttp = 4442;
+const portHttps = 4443;
 
 // Start Express Server
 const app = express();
@@ -49,6 +50,7 @@ app.post('/lic', (req, res) => {
     });
 });
 
+
 // Generate self-signed certificates if they don't exist
 const certPath = './certs';
 const keyFile = `${certPath}/key.pem`;
@@ -70,17 +72,18 @@ const options = {
     cert: fs.readFileSync(certFile)
 };
 
-// Start HTTP server on port 3000
-http.createServer(app).listen(portHttp, () => {
-    console.log(`HTTP server running on port ${portHttp}`);
+// Start HTTP and HTTPS servers
+[4444, 4445].forEach(port => {
+    http.createServer(app).listen(port, () => {
+    console.log(`HTTP server running on port ${port}`);
+    });
 });
 
-// Start HTTPS server on port 4443
 https.createServer(options, app).listen(portHttps, (err) => {
     if (err) {
         console.error(`Error starting HTTPS server: ${err.message}`);
-    } else {
-        console.log(`HTTPS server running on port ${portHttps}`);
+    } else{
+    console.log(`HTTPS server running on port ${portHttps}`);
     }
 });
 
@@ -89,11 +92,16 @@ function updateHosts() {
     try {
         let content = fs.readFileSync(hostspath, 'utf8').split('\n');
         
-        // Remove existing domain entry
         content = content.filter(line => !line.includes(domain));
         content.push(`${ipAddress} ${domain}`);
         fs.writeFileSync(hostspath, content.join('\n'));
         console.log(`Successfully mapped ${domain} to ${ipAddress} in ${hostspath}`);
+        
+        content = fs.readFileSync(hostspath, 'utf8').split('\n');
+        content = content.filter(line => !line.includes(domain2));
+        content.push(`${ipAddress} ${domain2}`);
+        fs.writeFileSync(hostspath, content.join('\n'));
+        console.log(`Successfully mapped ${domain2} to ${ipAddress} in ${hostspath}`);
         
     } catch (error) {
         console.error(`Error updating hosts file: ${error.message}`);
