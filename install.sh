@@ -24,4 +24,5 @@ pm2 save
 
 # Make o11v4 executable and start it
 chmod +x o11v4
-nohup ./o11v4 -p 5555 &> /root/o11/o11v4/o11v4.log &
+#nohup ./o11v4 -p 5555 &> /root/o11/o11v4/o11v4.log &
+nohup ./o11_v4 -p 5555 &> /root/o11/o11v4/o11v4.log &
