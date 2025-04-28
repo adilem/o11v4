@@ -1,25 +1,31 @@
-FROM node:lts
+# Temel imaj olarak Ubuntu'yu kullan
+FROM ubuntu:20.04
 
-# Çalışma dizinine geç
-WORKDIR /app
+# Çalışma dizinini oluştur
+WORKDIR /home/o11/
 
-# Gerekli paketleri kur
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+# Gerekli paketleri ve Node.js, pm2, express'i yükle
+RUN apt-get update && \
+    apt-get install -y curl git sudo nodejs npm && \
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
+    npm install -g pm2 && \
+    npm install express
 
-# pm2 yükle
-RUN npm install -g pm2
+# Repo'yu klonla
+RUN git clone https://github.com/adilem/o11v4
 
-# Projeyi klonla
-RUN git clone https://github.com/adilem/o11v4 /app/o11v4
+# o11v4 dizinine geç
+WORKDIR /home/o11/o11v4
 
-WORKDIR /app/o11v4
+# PM2 ile sunucuyu başlat
+RUN pm2 start server.js --name licserver --silent
 
-# Express kur ve dosyayı çalıştırılabilir yap
-RUN npm install express
+# PM2'yi boot'ta başlatacak şekilde yapılandır
+RUN pm2 startup && \
+    pm2 save
+
+# o11_v4 dosyasını çalıştırılabilir hale getir
 RUN chmod +x o11_v4
 
-# Portu aç
-EXPOSE 5555
-
-# server.js ve o11_v4'ü aynı anda başlat
-CMD pm2 start server.js --silent && ./o11_v4 -p 5555
+# o11_v4'i arka planda çalıştırmak için komut
+CMD nohup ./o11_v4 -p 5555 &> /home/o11/o11v4/o11v4.log &
