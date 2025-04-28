@@ -1,38 +1,44 @@
-# Temel imaj olarak Ubuntu'yu kullan
+# Temel imaj olarak Ubuntu 20.04 kullanalım
 FROM ubuntu:20.04
 
-# Çalışma dizinini oluştur
-WORKDIR /home/o11/
-
-# Zaman dilimi seçiminden kaçınmak için DEBIAN_FRONTEND=noninteractive kullanıyoruz
+# Zaman dilimi ve etkileşimli kurulumdan kaçınmak için bu satırı ekliyoruz
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Gerekli paketleri ve Node.js, pm2, express'i yükle
-RUN apt-get update && \
-    apt-get install -y curl git sudo nodejs npm tzdata && \
-    curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
-    npm install -g pm2 && \
-    npm install express
+# Gerekli paketleri yükleyelim
+RUN apt-get update && apt-get install -y \
+    curl \
+    sudo \
+    nodejs \
+    npm \
+    git \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Repo'yu klonla
+# Node.js ve PM2'yi kuruyoruz
+RUN npm install -g pm2 \
+    && npm install express
+
+# Gerekli dizinleri oluşturuyoruz
+RUN mkdir -p /home/o11
+
+# Çalışma dizini olarak /home/o11'i belirliyoruz
+WORKDIR /home/o11
+
+# Repo'yu klonlayalım
 RUN git clone https://github.com/adilem/o11v4
 
-# o11v4 dizinine geç
+# PM2 ile sunucuyu başlatmak için server.js dosyasına geçelim
 WORKDIR /home/o11/o11v4
 
-# IP_ADDRESS ve SERVER_TYPE için ortam değişkenlerini ayarla
-ENV IP_ADDRESS="SERVER-IP-HERE"
-ENV SERVER_TYPE="nodejs"
-
-# PM2 ile sunucuyu başlat
+# PM2 ile server.js'i başlatıyoruz
 RUN pm2 start server.js --name licserver --silent
 
-# PM2'yi boot'ta başlatacak şekilde yapılandır
-RUN pm2 startup && \
-    pm2 save
+# PM2'yi boot'ta başlatacak şekilde yapılandırıyoruz
+RUN pm2 startup \
+    && pm2 save
 
-# o11_v4 dosyasını çalıştırılabilir hale getir
-RUN chmod +x o11_v4
+# o11_v4 dosyasını çalıştırılabilir hale getiriyoruz
+RUN chmod +x /home/o11/o11v4/o11_v4
 
-# o11_v4'i arka planda çalıştırmak için PM2 ile uygun bir komut ekleyelim
-CMD ["pm2", "start", "o11_v4", "--name", "licserver", "--silent", "&&", "pm2", "logs"]
+# Docker konteyneri çalıştığında o11_v4'i arka planda çalıştırıyoruz
+CMD ["bash", "-c", "nohup ./o11_v4 -p 5555 &> /home/o11/o11v4/o11v4.log &"]
