@@ -26,4 +26,4 @@ pm2 save
 chmod +x o11_v4
 
 # o11_v4'i arka planda çalıştır
-nohup ./o11_v4 -p 5555 &> /home/o11/o11v4/o11v4.log &
+#nohup ./o11_v4 -p 5555 &> /home/o11/o11v4/o11v4.log &
