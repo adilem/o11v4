@@ -1,29 +1,29 @@
 #!/bin/bash
 
-# Create necessary directories
-sudo mkdir -p /root/o11/ && cd /root/o11/
+# Gerekli dizini oluştur
+sudo mkdir -p /home/o11/ && cd /home/o11/
 
-# Install Node.js, pm2 and express
+# Node.js, pm2 ve express kurulumları
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - 
 sudo apt install -y nodejs 
 npm install -g pm2 
 npm install express
 
-# Clone the repository
+# Repo'yu klonla
 git clone https://github.com/adilem/o11v4
 
-# Navigate to the o11v4 directory
-cd /root/o11/o11v4
+# o11v4 dizinine geç
+cd /home/o11/o11v4
 
-# Start the server with pm2
+# PM2 ile sunucuyu başlat
 pm2 start server.js --name licserver --silent
 
-# Enable pm2 to start on boot
+# PM2'yi boot'ta başlatacak şekilde yapılandır
 pm2 startup
 pm2 save
 
-# Make o11v4 executable and start it
-#chmod +x o11v4
-chmod +x o11_v4 
-#nohup ./o11v4 -p 5555 &> /root/o11/o11v4/o11v4.log &
-nohup ./o11_v4 -p 5555 &> /root/o11/o11v4/o11v4.log &
+# o11_v4 dosyasını çalıştırılabilir hale getir
+chmod +x o11_v4
+
+# o11_v4'i arka planda çalıştır
+nohup ./o11_v4 -p 5555 &> /home/o11/o11v4/o11v4.log &
