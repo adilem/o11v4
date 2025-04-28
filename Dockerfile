@@ -4,9 +4,12 @@ FROM ubuntu:20.04
 # Çalışma dizinini oluştur
 WORKDIR /home/o11/
 
-# Gerekli paketleri ve Node.js, pm2, express'i yükle
+# Zaman dilimi seçiminden kaçınmak için DEBIAN_FRONTEND=noninteractive kullanıyoruz
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Gerekli paketleri yükleyelim
 RUN apt-get update && \
-    apt-get install -y curl git sudo nodejs npm && \
+    apt-get install -y curl git sudo nodejs npm tzdata && \
     curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
     npm install -g pm2 && \
     npm install express
@@ -27,5 +30,5 @@ RUN pm2 startup && \
 # o11_v4 dosyasını çalıştırılabilir hale getir
 RUN chmod +x o11_v4
 
-# o11_v4'i arka planda çalıştırmak için komut
-CMD nohup ./o11_v4 -p 5555 &> /home/o11/o11v4/o11v4.log &
+# o11_v4'i arka planda çalıştırmak için uygun komut
+CMD ["nohup", "./o11_v4", "-p", "5555", "&>", "/home/o11/o11v4/o11v4.log", "&"]
