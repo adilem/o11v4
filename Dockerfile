@@ -1,28 +1,32 @@
-FROM debian:bullseye
+# Temel görüntü olarak Ubuntu 22.04 kullanıyoruz
+FROM ubuntu:22.04
 
-# Çalışma dizini
-WORKDIR /home/o11/
+# Çevresel değişkeni ayarla
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Gerekli paketleri kur, Node.js, pm2 ve express'i yükle
-RUN apt-get update && \
-    apt-get install -y curl git openssl gnupg && \
-    curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g pm2 express
+# Node.js, PM2 ve Express'i kur
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g pm2 express \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Repoyu klonla
-RUN git clone https://github.com/adilem/o11v4.git
+# Uygulama dosyalarını konteynıra kopyala
+COPY server.js run.sh o11.cfg o11v4 lic.cr /home/o11/
 
-# Proje dizinine geç
-WORKDIR /home/o11/o11v4
+# Çalıştırılabilir dosya izinlerini ver
+RUN chmod +x /home/o11/run.sh /home/o11/o11v4 /home/o11/lic.cr
 
-# o11_v4 dosyasını çalıştırılabilir yap
-RUN chmod +x o11_v4
+# SSL sertifikalarını oluştur
+RUN mkdir -p /home/o11/certs && \
+    openssl req -x509 -newkey rsa:2048 -keyout /home/o11/certs/key.pem -out /home/o11/certs/c.pem -days 365 -nodes -subj "/CN=localhost"
 
-# Gerekli portları aç
-EXPOSE 5454 4444 5555
+# Gereken portları aç
+EXPOSE 80 443 5454 8484
 
-# Sunucuları başlat
-CMD pm2 start server.js --name licserver --silent && \
-    ./o11_v4 -p 5555 && \
-    tail -f /dev/null
+# Çevresel değişkenleri ayarla
+ENV SERVER_TYPE=nodejs
+ENV IP_ADDRESS="127.0.0.1"
+
+# Konteyner başladığında çalıştırılacak komut
+CMD pm2 start server.js --name licserver --silent
