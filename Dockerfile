@@ -1,44 +1,28 @@
-# Temel imaj olarak Ubuntu 20.04 kullanalım
-FROM ubuntu:20.04
+FROM debian:bullseye
 
-# Zaman dilimi ve etkileşimli kurulumdan kaçınmak için bu satırı ekliyoruz
-ENV DEBIAN_FRONTEND=noninteractive
+# Çalışma dizini
+WORKDIR /home/o11/
 
-# Gerekli paketleri yükleyelim
-RUN apt-get update && apt-get install -y \
-    curl \
-    sudo \
-    nodejs \
-    npm \
-    git \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Gerekli paketleri kur, Node.js, pm2 ve express'i yükle
+RUN apt-get update && \
+    apt-get install -y curl git openssl gnupg && \
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g pm2 express
 
-# Node.js ve PM2'yi kuruyoruz
-RUN npm install -g pm2 \
-    && npm install express
+# Repoyu klonla
+RUN git clone https://github.com/adilem/o11v4.git
 
-# Gerekli dizinleri oluşturuyoruz
-RUN mkdir -p /home/o11
-
-# Çalışma dizini olarak /home/o11'i belirliyoruz
-WORKDIR /home/o11
-
-# Repo'yu klonlayalım
-RUN git clone https://github.com/adilem/o11v4
-
-# PM2 ile sunucuyu başlatmak için server.js dosyasına geçelim
+# Proje dizinine geç
 WORKDIR /home/o11/o11v4
 
-# PM2 ile server.js'i başlatıyoruz
-RUN pm2 start server.js --name licserver --silent
+# o11_v4 dosyasını çalıştırılabilir yap
+RUN chmod +x o11_v4
 
-# PM2'yi boot'ta başlatacak şekilde yapılandırıyoruz
-RUN pm2 startup \
-    && pm2 save
+# Gerekli portları aç
+EXPOSE 5454 4444 5555
 
-# o11_v4 dosyasını çalıştırılabilir hale getiriyoruz
-RUN chmod +x /home/o11/o11v4/o11_v4
-
-# Docker konteyneri çalıştığında o11_v4'i arka planda çalıştırıyoruz
-CMD ["bash", "-c", "nohup ./o11_v4 -p 5555 &> /home/o11/o11v4/o11v4.log &"]
+# Sunucuları başlat
+CMD pm2 start server.js --name licserver --silent && \
+    ./o11_v4 -p 5555 && \
+    tail -f /dev/null
