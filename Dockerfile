@@ -4,6 +4,9 @@ FROM ubuntu:22.04
 # Çevresel değişkeni ayarla
 ENV DEBIAN_FRONTEND=noninteractive
 
+# curl ve gerekli paketleri kur
+RUN apt-get update && apt-get install -y curl
+
 # Node.js, PM2 ve Express'i kur
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && apt-get install -y nodejs \
